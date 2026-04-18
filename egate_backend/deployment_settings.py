@@ -28,7 +28,7 @@ MIDDLEWARE += [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = ['https://e-gate-system.onrender.com']
+CORS_ALLOWED_ALL_ORIGINS = ['https://e-gate-system.onrender.com']
 
 
 
