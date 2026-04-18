@@ -65,7 +65,16 @@ def health_check(request):
     )
 
 # ✅ Core API routes
+def api_root(request):
+    return JsonResponse({
+        'message': 'E-Gate API is running',
+        'docs': '/api/docs/',
+        'health': '/api/health/',
+        'admin': '/admin/'
+    })
+
 urlpatterns = [
+    path('', api_root),
     # Django Admin
     path("admin/", admin.site.urls),
 
