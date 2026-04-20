@@ -4,7 +4,27 @@ from .settings import *
 from .settings import BASE_DIR
 
 ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME')]
-CSRF_TRUSTED_ORIGINS = ['https://' + os.environ.get('RENDER_EXTERNAL_HOSTNAME')]
+
+
+def _split_csv_env(name, default=""):
+    raw = os.environ.get(name, default)
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+frontend_origins = _split_csv_env(
+    "CORS_ALLOWED_ORIGINS",
+    "https://egate-deployment-react.onrender.com,https://e-gate-system.onrender.com",
+)
+csrf_origins = _split_csv_env(
+    "CSRF_TRUSTED_ORIGINS",
+    ",".join(
+        [f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}"] if os.environ.get('RENDER_EXTERNAL_HOSTNAME') else []
+    ),
+)
+for origin in frontend_origins:
+    if origin not in csrf_origins:
+        csrf_origins.append(origin)
+
+CSRF_TRUSTED_ORIGINS = csrf_origins
 
 DEBUG = False
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -28,17 +48,16 @@ MIDDLEWARE += [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ALL_ORIGINS = ['https://e-gate-system.onrender.com']
-
-
+CORS_ALLOWED_ORIGINS = frontend_origins
 
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
+
 }
 
 DATABASES = {
